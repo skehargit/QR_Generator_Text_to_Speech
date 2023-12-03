@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Generator | Text To Speech</title>
+    <link rel="stylesheet" href="styls.css">
+    <style>
+        *{
+            font-family: 'Source Sans Pro', sans-serif;
+            margin:0;
+            padding:0;
+            box-sizing: border-box;
+            text-decoration: none;
+            -webkit-tap-highlight-color: rgba(0,0,0,0)!important;
+            -webkit-focus-ring-color:rgba(255,255,255,0);
+            outline: none !important;
+        }
+        .container{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: black;
+        }
+        .container .box{
+            width: 320px;
+            position: relative;
+            height: 568px;
+            border: 5px solid #b28b47;
+            background: black;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            /* display: flex; */
+            /* flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly; */
+            /* gap: 20px; */
+        }
+        .logo{
+
+            color: #b28b47;
+            /* border: 1px solid red; */
+        }
+        .container input{
+            padding: 10px;
+            width: 100%;
+            border: 2px solid #b28b47;
+            background: black;
+            color: white;
+            
+        }
+        .ai{
+            display: none;
+        }
+        .container .Qr-box{
+            height: 290px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            width: 100%;
+            background: black;
+        }
+        
+        .container .Qr-box img{
+            border:2px solid #b28b47;
+            border-top: none;
+            border-bottom: none;
+            padding: 10px;
+        }
+        .text{
+            text-align: center;
+        }
+        .text p,.texttovoice .row p{
+            color: #b28b47;
+            font-size: 12px;
+            font-family: sans-serif;
+            letter-spacing: 1px;
+        }
+        .btn {
+            display: inline-block;
+            font-family: sans-serif;
+            color: white;
+            border: none;
+            margin: 15px 0;
+            font-size: 14px;
+            padding: 10px 20px;
+            border: 2px solid #b28b47;
+            cursor: pointer;
+            position: relative;
+            background-color: transparent;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #b28b47;
+            transform: translateX(-100%);
+            transition: all .3s;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            transform: translateX(0);
+        }
+        .twobuttons{
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b28b47;
+            position: absolute;
+            bottom: 20px;
+        }
+        .twobuttons span{
+            border: 1px solid white;
+            padding: 5px 15px;
+            border: 2px solid #b28b47;
+            cursor: pointer;
+            transition: .5s;
+            color: white;
+        }
+        .twobuttons span:nth-child(1){
+            border-right: none;
+        }
+        .texttovoice{
+            display: none;
+        }
+        .texttovoice .row{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .texttovoice .row select{
+            width: 100%;
+            padding: 10px;
+            color: white;
+            background: black;
+            border: 2px solid #b28b47;
+        }
+        .texttovoice .row button{
+            padding: 10px;
+        }
+        #sptextarea{
+            height: 275px;
+            width: 100%;
+            padding: 10px;
+            background: black;
+            color: white;
+            border: 2px solid #b28b47;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="box">
+            <div class="Qr">
+                <h1 class="logo">QR GENERATOR</h1>
+                <div class="Qr-box" >
+                    <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=welcome" alt="">
+                </div>
+                
+                <div class="text">
+                    <input id="qr-input" type="text" placeholder="write or past some thing to generate QR..." required>
+                    <button class="btn" id="qr-btn">Generate QR</button>
+                    <p>Generating a QR code simplifies sharing information by creating a scannable code for text, URLs, links, or numbers.</p>
+                </div>
+            </div>
+            <div class="texttovoice" id="voice">
+                <h1 class="logo">TEXT TO SPEECH</h1>
+                <textarea name="" id="sptextarea" placeholder="write anything here..." cols="30" rows="10"></textarea>
+                <div class="row">
+                    <select name="" id="selectid">
+                        <option class="op" value="Google हिन्दी" >Female Voice</option>
+                        <option class="op" value="Microsoft Ravi - English (India)">Male Voice</option>
+                    </select>
+                    <button class="btn" id="spbtn">Generate Speech</button>
+                    <p>you can convert any text to voice.</p>
+                </div>
+            </div>
+            
+            
+            <div class="twobuttons">
+                <span id="qrspan">QR Generator</span>
+                <span id="Speechspan">Speech Generator</span>
+            </div>
+        </div>
+        
+
+        
+    </div>
+    <!-- =============== Text To Speech ========== -->
+    <script>
+        var selectid=document.getElementById("selectid");
+        let synth=speechSynthesis;
+        let options=document.querySelectorAll(".op");
+        // function voices(){
+        //     for(let voice of synth.getVoices()){
+        //         console.log(voice);
+        //     }
+        // }
+        // synth.addEventListener("voiceschanged",voices);
+        let text=document.getElementById('sptextarea');
+        document.getElementById("spbtn").addEventListener("click",()=>{
+
+
+            let speech=new SpeechSynthesisUtterance(text.value);
+            // console.log(selectid.options[selectid.selectedIndex].value);
+            let selected=selectid.options[selectid.selectedIndex].value;
+            for(let lg of synth.getVoices()){
+                if(lg.name===selected){
+                    // console.log(lg.name);
+                    selected=lg;
+                }
+            }
+            speech.voice=selected;
+            synth.speak(speech);
+        })
+    </script>
+    <!-- ================ QR Generator=========== -->
+    <script>
+        const qrimg=document.getElementById("qr-img");
+        const qrinput=document.getElementById("qr-input");
+        const qrbtn=document.getElementById("qr-btn");
+        const qrBox=document.querySelector(".Qr");
+        const qrGeneratorBtn=document.getElementById("qrspan");
+        const imgGeneratorBtn=document.getElementById("Speechspan");
+        const voice=document.getElementById("voice");
+
+        qrGeneratorBtn.addEventListener("click",()=>{
+            qrBox.style.display="block";
+            voice.style.display="none";
+            qrGeneratorBtn.style.backgroundColor="#b28b4729";
+            imgGeneratorBtn.style.backgroundColor="black";
+        });
+        imgGeneratorBtn.addEventListener("click",()=>{
+            qrBox.style.display="none";
+            voice.style.display="block";
+            imgGeneratorBtn.style.backgroundColor="#b28b4729";
+            qrGeneratorBtn.style.backgroundColor="black";
+        })
+
+        const generateQr=()=>{
+            if(qrinput.value==""){
+                qrinput.style.backgroundColor='#230000';
+            }else{
+                qrimg.src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+qrinput.value;
+            }
+            
+        }
+        qrbtn.addEventListener("click",generateQr);
+
+
+    </script>
+</body>
+</html>
